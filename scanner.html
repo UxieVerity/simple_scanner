@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>识别二维码</title>
+    <meta name="viewport"  content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/lib/node_modules/material-components-web/dist/material-components-web.min.css">
+</head>
+<body class="mdc-typography demo-body">
+
+<main class="demo-main mdc-toolbar-fixed-adjust" align="center">
+    <br>
+    <button class="mdc-button mdc-button--raised mdc-button--accent " id="button" style="background-color: #0e90d2" onclick="$('#fileInput').click();">
+        点击此处进行扫描
+    </button>
+    <div >
+        <input type="file" id="fileInput" accept="image/*" capture="camera" style="display: none;" onclick="document.getElementById('resultText').innerHTML='请稍等。。。';"/><br/>
+        <div id="resultText" ></div>
+        <br>
+        <div id="description">
+            二维码拍照要求：<br />
+            1、尽量保持二维码在屏幕中间且足够清晰<br/>
+            2、手机摄像头需离二维码显示屏一定距离<br/>
+            3、范例如下(无屏闪波纹为佳):<br/>
+            <img src="static/images/description.png">
+        </div>
+    </div>
+</main>
+
+<!--scanner-->
+<script src="static/js/jq/jquery-3.2.1.min.js"></script>
+<script src="static/lib/node_modules/material-components-web/dist/material-components-web.min.js"></script>
+<script type="text/javascript" src="static/zepto.min.js"></script>
+<script type="text/javascript" src="static/jsqrcode/grid.js"></script>
+<script type="text/javascript" src="static/jsqrcode/version.js"></script>
+<script type="text/javascript" src="static/jsqrcode/detector.js"></script>
+<script type="text/javascript" src="static/jsqrcode/formatinf.js"></script>
+<script type="text/javascript" src="static/jsqrcode/errorlevel.js"></script>
+<script type="text/javascript" src="static/jsqrcode/bitmat.js"></script>
+<script type="text/javascript" src="static/jsqrcode/datablock.js"></script>
+<script type="text/javascript" src="static/jsqrcode/bmparser.js"></script>
+<script type="text/javascript" src="static/jsqrcode/datamask.js"></script>
+<script type="text/javascript" src="static/jsqrcode/rsdecoder.js"></script>
+<script type="text/javascript" src="static/jsqrcode/gf256poly.js"></script>
+<script type="text/javascript" src="static/jsqrcode/gf256.js"></script>
+<script type="text/javascript" src="static/jsqrcode/decoder.js"></script>
+<script type="text/javascript" src="static/jsqrcode/qrcode.js"></script>
+<script type="text/javascript" src="static/jsqrcode/findpat.js"></script>
+<script type="text/javascript" src="static/jsqrcode/alignpat.js"></script>
+<script type="text/javascript" src="static/jsqrcode/databr.js"></script>
+
+<script>
+
+    //加载图片
+    function loadImage(src, callback){
+        callback();
+        var img = new Image();
+        img.src = src;
+    }
+
+    //识别二维码
+    function decodeQRCode(src, callback){
+        qrcode.callback = callback;
+        qrcode.decode(src);
+    }
+
+    //页面初始化
+    function onLoadHandler(){
+
+        var $fileInput = $('#fileInput');
+		//点击时input内容清空
+		$fileInput.on('click', function() {
+			document.getElementById("fileInput").value="";
+		})
+        //当用户选取图片后触发
+        $fileInput.on('change', function() {
+            var file = $fileInput.get(0).files[0];//获取图片文件
+            var src = (window.URL || window.webkitURL).createObjectURL(file);//获取图片具体信息
+            loadImage(src, function (){//加载图片
+                decodeQRCode(src, function(result){//识别图片并返回结果result
+                    try{
+                        if(result=="扫描失败，请重新扫描。"){//由qrcode.js当扫描失败的时候返回的信息
+                            document.getElementById("resultText").innerHTML=result;//输出错误信息
+                        }
+                        else{
+							document.getElementById("resultText").innerHTML=result;
+							document.getElementById("description").innerHTML="";
+                        }
+                    }catch(e){
+                        //识别失败时触发，显示识别失败
+                        document.getElementById("resultText").innerHTML="二维码未成功识别！请按范例所示重新拍照！";
+                    }
+                });
+            })
+        });
+    }
+
+    //页面初始化
+    window.onload = onLoadHandler;
+
+</script>
+</body>
+</html>
+
+
+
+
